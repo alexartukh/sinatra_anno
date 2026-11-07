@@ -1,0 +1,20 @@
+<Window x:Class="KeepMeFocusedWindows.OverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:KeepMeFocusedWindows"
+        Title="Keep me focused" Height="150" Width="300"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="{x:Static local:Theme.BackgroundBrush}"
+        Foreground="{x:Static local:Theme.TextBrush}">
+    <Grid Margin="10">
+        <StackPanel>
+            <TextBlock x:Name="Message" Margin="0,0,0,10" />
+            <CheckBox x:Name="TaskCheck" Content="" Visibility="Collapsed" Checked="TaskCheck_Checked" />
+            <StackPanel Orientation="Horizontal" Visibility="Collapsed" x:Name="NewTaskPanel">
+                <TextBox Width="200" x:Name="NewTaskBox" />
+                <Button Content="Add" Margin="5,0,0,0" Click="AddButton_Click" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,45 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+.split {
+    display: flex;
+    height: 100%;
+}
+
+.split > .left,
+.split > .right {
+    width: 50%;
+    box-sizing: border-box;
+}
+
+.split > .left iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.split > .right {
+    font-family: monospace;
+    padding: 16px;
+    overflow: auto;
+    border-left: 1px solid #ccc;
+}
+
+.center_box {
+    width: fit-content;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+.cool_table {
+    border-collapse: collapse;
+    border: 3px solid #333;
+}
+
+.cool_table th,
+.cool_table td {
+    border: 1px solid #999;
+    padding: 4px 8px;
+}
