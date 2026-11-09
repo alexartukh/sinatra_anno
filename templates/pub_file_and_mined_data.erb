@@ -6,3 +6,51 @@
         <%= value %>
     </div>
 </div>
+
+<script>
+  const right = document.querySelector('.split > .right');
+  const frame = document.querySelector('.split > .left iframe');
+  let syncing = false;
+
+  // переводит позицию прокрутки из пикселей в долю от 0 до 1: 
+  // 0 — в самом верху, 1 — в самом низу, 0.5 — посередине.
+  // Аргументы — три стандартных свойства прокручиваемого элемента
+  // ┌─────────────────┐  ─┐
+  // │  уже прокручено │   │ scrollTop
+  // ├─────────────────┤  ─┤
+  // │   видно         │   │ clientHeight
+  // ├─────────────────┤  ─┤
+  // │  ещё ниже       │   │
+  // └─────────────────┘  ─┘
+  // └──── scrollHeight (всё вместе) ────┘
+  //
+  // scrollHeight никогда не бывает меньше clientHeight
+  function ratioOf(scrollTop, scrollHeight, clientHeight) {
+    const max = scrollHeight - clientHeight;
+    if (max <= 0) {
+      return 0;
+    }
+    return scrollTop / max;
+  }
+
+  frame.addEventListener('load', function () {
+    const leftWin = frame.contentWindow;
+    const leftDoc = frame.contentDocument.documentElement;
+
+    // скрол левой части двигает правую
+    leftWin.addEventListener('scroll', function () {
+      if (syncing) { syncing = false; return; }
+      const r = ratioOf(leftDoc.scrollTop, leftDoc.scrollHeight, leftDoc.clientHeight);
+      syncing = true;
+      right.scrollTop = r * (right.scrollHeight - right.clientHeight);
+    });
+
+    // скрол правой части двигает левую
+    right.addEventListener('scroll', function () {
+      if (syncing) { syncing = false; return; }
+      const r = ratioOf(right.scrollTop, right.scrollHeight, right.clientHeight);
+      syncing = true;
+      leftWin.scrollTo(0, r * (leftDoc.scrollHeight - leftDoc.clientHeight));
+    });
+  });
+</script>

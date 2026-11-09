@@ -10,7 +10,10 @@ class Processor
     @full_name = full_name
   end
 
-  def escape(text)
-    CGI.escapeHTML(text)
+  def prepare_line(line)
+    updated_line = CGI.escapeHTML(line)
+    updated_line.gsub(/^\s+/) do
+      '&nbsp;' * ::Regexp.last_match(0).length
+    end
   end
 end
