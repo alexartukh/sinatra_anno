@@ -8,6 +8,9 @@ end
 
 require_relative 'lib/processor1'
 require_relative 'lib/processor2'
+require_relative 'lib/matcher1'
+require_relative 'lib/matcher2'
+require_relative 'lib/container'
 
 set :views, File.join(__dir__, 'templates')
 public_dir = File.join(__dir__, 'public')
@@ -50,14 +53,29 @@ end
 
 # ------------------------------------------------------------------
 
-get %r{/mine_data/([12])/([^/]+?)/} do |operation, pub_file|
+get %r{/mine_data/([123])/([^/]+?)/} do |operation, pub_file|
   full_name = File.join(public_dir, 'data', pub_file)
   halt 404, 'Файл не найден' unless File.exist?(full_name)
 
-  proc = nil
-  proc = Processor1.new(full_name) if operation == '1'
-  proc = Processor2.new(full_name) if operation == '2'
-  result = proc.process
+  if operation == '1'
+    proc = Processor1.new(full_name)
+    result = proc.process
+  end
+  if operation == '2'
+    proc = Processor2.new(full_name)
+    result = proc.process
+  end
+  if operation == '3'
+    cont = Container.new(full_name)
+    m1 = Matcher1.new
+    m2 = Matcher2.new
+    a1 = m1.process(cont.text)
+    a2 = m2.process(cont.text)
+
+    all = (a1 + a2).sort_by { |annotation| annotation[:begin] }
+
+    result = cont.create_annotated(all)
+  end
 
   erb(
     :pub_file_and_mined_data, {
