@@ -1,22 +1,13 @@
 # frozen_string_literal: true
 
-require 'English'
+require_relative 'matcher'
 
-# import
-class Matcher2
-  def process(text)
-    result = []
-    text.scan(/^import.+$/) do |matched_text|
-      match = $LAST_MATCH_INFO
-      tmp = {
-        text: matched_text,
-        begin: match.begin(0),
-        end: match.end(0),
-        css: 'marked2',
-        priority: 2
-      }
-      result.push(tmp)
-    end
-    result
+# import something
+class Matcher2 < Matcher
+  def initialize
+    super()
+    self.re = /^import.+$/
+    self.css = 'marked2'
+    self.priority = 2
   end
 end

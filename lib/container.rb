@@ -11,43 +11,41 @@ class Container
     @text = File.read(@full_name)
   end
 
-  def create_annotated(annotations)
-    left = 0
-    result = ''
+  # all annotations are already sorted by priority
+  def create_annotated_ext(annotations)
+    # the whole text is not painted yet
+    colors = Array.new(@text.length, 'empty')
     annotations.each do |a|
-      piece_before = @text[left...a[:begin]]
-      piece_target = @text[a[:begin]...a[:end]]
-      left = a[:end]
-
-      # escape
-      piece_before = CGI.escapeHTML(piece_before)
-      piece_target = "<span class='#{a[:css]}'>#{CGI.escapeHTML(piece_target)}</span>"
-      # indents
-      piece_before = piece_before.gsub(/^[ \t]+/) do
-        '&nbsp;' * ::Regexp.last_match(0).length
+      (a[:begin]...a[:end]).each do |idx|
+        colors[idx] = a[:css]
       end
-      piece_target = piece_target.gsub(/^[ \t]+/) do
-        '&nbsp;' * ::Regexp.last_match(0).length
-      end
-      # eol
-      piece_before = piece_before.gsub(/\n/, '<br>')
-      piece_target = piece_target.gsub(/\n/, '<br>')
-
-      result += piece_before
-      result += piece_target
     end
 
-    # escape
-    tail = CGI.escapeHTML(@text[left...@text.length])
+    # span-s for everything (even for not painted)
+    result = '<span class="empty">'
+    current_class = 'empty'
+
+    colors.each_index do |idx|
+      # add open tag to the result
+      if colors[idx] != current_class
+        # close old
+        result += '</span>'
+        # open new
+        result += "<span class='#{colors[idx]}'>"
+
+        current_class = colors[idx]
+      end
+
+      # add letter
+      result += CGI.escapeHTML(@text[idx])
+    end
+    result += '</span>'
+
     # indents
-    tail = tail.gsub(/^[ \t]+/) do
+    result = result.gsub(/^[ \t]+/) do
       '&nbsp;' * ::Regexp.last_match(0).length
     end
     # eol
-    tail = tail.gsub(/\n/, '<br>')
-
-    result += tail
-
-    result
+    result.gsub(/\n/, '<br>')
   end
 end

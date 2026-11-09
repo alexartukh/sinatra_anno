@@ -6,11 +6,11 @@ if development?
   also_reload File.join(__dir__, 'lib', '*.rb')
 end
 
-require_relative 'lib/processor1'
-require_relative 'lib/processor2'
+require_relative 'lib/container'
 require_relative 'lib/matcher1'
 require_relative 'lib/matcher2'
-require_relative 'lib/container'
+require_relative 'lib/matcher3'
+require_relative 'lib/matcher4'
 
 set :views, File.join(__dir__, 'templates')
 public_dir = File.join(__dir__, 'public')
@@ -53,28 +53,25 @@ end
 
 # ------------------------------------------------------------------
 
-get %r{/mine_data/([123])/([^/]+?)/} do |operation, pub_file|
+get %r{/mine_data/([12])/([^/]+?)/} do |operation, pub_file|
   full_name = File.join(public_dir, 'data', pub_file)
   halt 404, 'Файл не найден' unless File.exist?(full_name)
 
   if operation == '1'
-    proc = Processor1.new(full_name)
-    result = proc.process
-  end
-  if operation == '2'
-    proc = Processor2.new(full_name)
-    result = proc.process
-  end
-  if operation == '3'
     cont = Container.new(full_name)
     m1 = Matcher1.new
     m2 = Matcher2.new
+    m3 = Matcher3.new
+    m4 = Matcher4.new
     a1 = m1.process(cont.text)
     a2 = m2.process(cont.text)
+    a3 = m3.process(cont.text)
+    a4 = m4.process(cont.text)
 
-    all = (a1 + a2).sort_by { |annotation| annotation[:begin] }
+    # 1 is the lowest priority
+    all = (a1 + a2 + a3 + a4).sort_by { |annotation| annotation[:priority] }
 
-    result = cont.create_annotated(all)
+    result = cont.create_annotated_ext(all)
   end
 
   erb(
