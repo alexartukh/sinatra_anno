@@ -1,0 +1,28 @@
+# Matchers configuration.
+# re: regex source in SINGLE quotes (YAML does not process backslashes there).
+# priority: 1 is the lowest, the higher priority paints over the lower one.
+
+# - name: 'useFoo'
+#   regexp: '\buse[A-Z]\w*\b'
+#   css: 'background-color: cyan;'
+#   priority: 1
+
+# - name: 'import'
+#   regexp: '^import.+$'
+#   css: 'background-color: lime;'
+#   priority: 2
+
+# - name: 'useState pair'
+#   regexp: '\[\s*\w+\s*,\s*set\w+\s*\]'
+#   css: 'background-color: magenta;'
+#   priority: 3
+
+# - name: 'setFoo'
+#   regexp: '\bset[A-Z]\w*\b'
+#   css: 'background-color: teal;'
+#   priority: 4
+
+- name: 'id'
+  regexp: '\b[A-Za-z_]\w*\b'
+  css: 'background-color: cyan;'
+  priority: 4

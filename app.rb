@@ -5,12 +5,10 @@ if development?
   require 'sinatra/reloader'
   also_reload File.join(__dir__, 'lib', '*.rb')
 end
+require 'yaml'
 
 require_relative 'lib/container'
-require_relative 'lib/matcher1'
-require_relative 'lib/matcher2'
-require_relative 'lib/matcher3'
-require_relative 'lib/matcher4'
+require_relative 'lib/matcher'
 
 set :views, File.join(__dir__, 'templates')
 public_dir = File.join(__dir__, 'public')
@@ -59,19 +57,20 @@ get %r{/mine_data/([12])/([^/]+?)/} do |operation, pub_file|
 
   if operation == '1'
     cont = Container.new(full_name)
-    m1 = Matcher1.new
-    m2 = Matcher2.new
-    m3 = Matcher3.new
-    m4 = Matcher4.new
-    a1 = m1.process(cont.text)
-    a2 = m2.process(cont.text)
-    a3 = m3.process(cont.text)
-    a4 = m4.process(cont.text)
+    yaml_full_name = File.join(__dir__, 'matchers.yml')
+    annotations = []
+    YAML.load_file(yaml_full_name).each do |cfg|
+      m = Matcher.new(cfg['name'], cfg['regexp'], cfg['css'], cfg['priority'])
+      annotations.push(m.process(cont.text))
+    end
 
-    # 1 is the lowest priority
-    all = (a1 + a2 + a3 + a4).sort_by { |annotation| annotation[:priority] }
+    annotations_sorted = []
+    annotations.each do |a|
+      annotations_sorted += a
+    end
+    annotations_sorted = annotations_sorted.sort_by { |a| a[:priority] }
 
-    result = cont.create_annotated_ext(all)
+    result = cont.create_annotated_ext(annotations_sorted)
   end
 
   erb(

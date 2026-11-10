@@ -3,11 +3,36 @@
         <iframe src="<%= file_url %>"></iframe>
     </div>
     <div class="right">
-        <%= value %>
+        <div class="right_layers"> <!-- position: relative -->
+          <canvas id="decor"></canvas> <!-- position: absolute; z-index: -1 или pointer-events: none -->
+          <div class="right_text"><%= value %></div>
+        </div>
     </div>
 </div>
 
 <script>
+  // полотно за текстом
+
+  const layers = document.querySelector('.right_layers');
+  const canvas = document.getElementById('decor');
+  const ctx = canvas.getContext('2d');
+
+  function draw() {
+    // размер холста = размер содержимого; при этом холст очищается
+    canvas.width = layers.scrollWidth;
+    canvas.height = layers.scrollHeight;
+
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(10, 10);
+    ctx.lineTo(200, 300);
+    ctx.stroke();
+  }
+
+  window.addEventListener('load', draw);
+  window.addEventListener('resize', draw);
+
   const right = document.querySelector('.split > .right');
   const frame = document.querySelector('.split > .left iframe');
   let syncing = false;

@@ -22,7 +22,7 @@ class Container
     end
 
     # span-s for everything (even for not painted)
-    result = '<span class="empty">'
+    result = '<span style="">'
     current_class = 'empty'
 
     colors.each_index do |idx|
@@ -31,7 +31,7 @@ class Container
         # close old
         result += '</span>'
         # open new
-        result += "<span class='#{colors[idx]}'>"
+        result += "<span style='#{colors[idx]}'>"
 
         current_class = colors[idx]
       end

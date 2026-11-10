@@ -27,6 +27,19 @@ html, body {
     border-left: 1px solid #ccc;
 }
 
+.right_layers {
+    position: relative;   /* точка отсчёта для canvas */
+    z-index: 0;           /* свой слой: canvas с -1 не уйдёт под фон страницы */
+}
+
+#decor {
+    position: absolute;   /* вынимает canvas из потока, текст перестаёт его обтекать */
+    top: 0;
+    left: 0;
+    z-index: -1;          /* под текстом */
+    pointer-events: none; /* не мешает выделять текст мышью */
+}
+
 .center_box {
     width: fit-content;
     margin: 0 auto;
