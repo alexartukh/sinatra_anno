@@ -60,11 +60,17 @@ get %r{/mine_data/([123])/([^/]+?)/} do |operation, pub_file|
     container = Container.new(full_name)
     yaml_full_name = File.join(__dir__, 'matchers.yml')
 
-    annotations = [] # array of arrays of hashes
+    # array of arrays of hashes
+    annotations = []
+    # same results, but as hash
+    annotations_as_hash = {}
+
     YAML.load_file(yaml_full_name).each do |cfg|
       m = Matcher.new(cfg)
-      aoh = m.process(container)
+      aoh = m.process(container, annotations_as_hash)
+      # save results in 2 data structures
       annotations.push(aoh)
+      annotations_as_hash[m.name] = aoh
 
       if m.postprocessing == 'SEQUENCE'
         last_point = nil

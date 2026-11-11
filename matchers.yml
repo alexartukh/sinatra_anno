@@ -1,6 +1,6 @@
-# Matchers configuration.
-# re: regex source in SINGLE quotes (YAML does not process backslashes there).
-# priority: 1 is the lowest, the higher priority paints over the lower one.
+# 'priority' = painting priority
+# all annotations will be applied in order of appearance
+# 'name' should be unique
 
 # - name: 'useFoo'
 #   regexp: '\buse[A-Z]\w*\b'
@@ -17,24 +17,44 @@
 #   css: 'background-color: magenta;'
 #   priority: 3
 
-- name: 'setFoo'
-  regexp: '\bset[A-Z]\w*\b'
-  css: 'background-color: red;'
-  priority: 4
-  postprocessing: 'SEQUENCE'
-
-# - name: 'id'
-#   regexp: '\b[A-Za-z_]\w*\b'
-#   css: 'background-color: cyan;'
+# - name: 'setFoo'
+#   regexp: '\bset[A-Z]\w*\b'
+#   css: 'background-color: red;'
 #   priority: 4
+#   postprocessing: 'SEQUENCE'
 
 # - name: 'vars'
 #   regexp: '(?:let|const|var).+?='
 #   css: 'background-color: cyan;'
 #   priority: 5
 
-- name: 'call'
-  regexp: '\b([a-zA-Z_]\w*)\('
+# - name: 'call'
+#   regexp: '\b([a-zA-Z_]\w*)\('
+#   css: 'background-color: cyan;'
+#   priority: 5
+#   group: 1
+
+- name: 'use_state_var'
+  regexp: 'const \[\s*(\w+)\s*,\s*set\w+\s*\]\s*=\s*useState\b'
+  css: 'background-color: magenta;'
+  priority: 300
+  group: 1
+
+- name: 'use_state_setter'
+  regexp: 'const \[\s*\w+\s*,\s*(set\w+)\s*\]\s*=\s*useState\b'
+  css: 'background-color: yellow;'
+  priority: 400
+  group: 1
+  
+- name: 'id1'
+  regexp: '\b\w+\b'
   css: 'background-color: cyan;'
   priority: 5
-  group: 1
+  belong_to_list: 'use_state_var'
+
+- name: 'id2'
+  regexp: '\b\w+\b'
+  css: 'background-color: cyan;'
+  priority: 6
+  belong_to_list: 'use_state_setter'
+  

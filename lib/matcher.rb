@@ -25,22 +25,33 @@ class Matcher
     @postprocessing = cfg.fetch('postprocessing', '')
     @mods = cfg.fetch('mods', '')
     @group = cfg.fetch('group', 0)
+    @belong_to_list = cfg.fetch('belong_to_list', nil)
 
     # string -> Regexp
     @regexp = Regexp.new(@regexp)
   end
 
-  def process(container)
+  def process(container, annotations_as_hash)
     text = container.text
     result = []
     text.scan(@regexp) do
       match = $LAST_MATCH_INFO
+
+      # 'belong_to_list' feature
+      unless @belong_to_list.nil?
+        next unless annotations_as_hash[@belong_to_list]
+        next unless annotations_as_hash[@belong_to_list].any? do |h|
+          h[:text] == match[@group]
+        end
+      end
+
       first_index = match.begin(@group)
       last_index = match.end(@group)
       begin_line, begin_col = container.search_for_line_col(first_index)
       end_line, end_col = container.search_for_line_col(last_index)
       tmp = {
         id: @id,
+        text: match[@group],
         begin: first_index,
         end: last_index,
         begin_line: begin_line,
@@ -52,7 +63,6 @@ class Matcher
       }
       @id += 1
       result.push(tmp)
-      p tmp
     end
     result
   end
