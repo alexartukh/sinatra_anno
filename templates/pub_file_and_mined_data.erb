@@ -11,27 +11,7 @@
 </div>
 
 <script>
-  // полотно за текстом
-
-  const layers = document.querySelector('.right_layers');
-  const canvas = document.getElementById('decor');
-  const ctx = canvas.getContext('2d');
-
-  function draw() {
-    // размер холста = размер содержимого; при этом холст очищается
-    canvas.width = layers.scrollWidth;
-    canvas.height = layers.scrollHeight;
-
-    ctx.strokeStyle = 'red';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(10, 10);
-    ctx.lineTo(200, 300);
-    ctx.stroke();
-  }
-
-  window.addEventListener('load', draw);
-  window.addEventListener('resize', draw);
+  // синхронный скролинг
 
   const right = document.querySelector('.split > .right');
   const frame = document.querySelector('.split > .left iframe');
@@ -78,4 +58,48 @@
       leftWin.scrollTo(0, r * (leftDoc.scrollHeight - leftDoc.clientHeight));
     });
   });
+</script>
+
+<script>
+  // полотно за текстом
+
+  const layers = document.querySelector('.right_layers');
+  const canvas = document.getElementById('decor');
+  const ctx = canvas.getContext('2d');
+  let charW = 0;
+  let lineH = 0;
+
+  // ширина символа и высота строки: меряем пробный span тем же шрифтом
+  function measure() {
+    const probe = document.createElement('span');
+    probe.textContent = 'X'.repeat(100);
+    layers.querySelector('.right_text').appendChild(probe);
+    const r = probe.getBoundingClientRect();
+    charW = r.width / 100;
+    lineH = r.height;
+    probe.remove();
+  }
+
+  // строка/колонка (с 1) -> пиксели, середина символа
+  function toX(col)  { return (col - 1) * charW + charW / 2; }
+  function toY(line) { return (line - 1) * lineH + lineH / 2; }
+
+  function drawSegment(l1, c1, l2, c2) {
+    ctx.beginPath();
+    ctx.moveTo(toX(c1), toY(l1));
+    ctx.lineTo(toX(c2), toY(l2));
+    ctx.stroke();
+  }
+
+  function draw() {
+    canvas.width = layers.scrollWidth;    // заодно очищает холст
+    canvas.height = layers.scrollHeight;
+    measure();
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = 1;
+    <%= draw_js_lines %>
+  }
+
+  window.addEventListener('load', draw);
+  window.addEventListener('resize', draw);
 </script>

@@ -56,19 +56,3 @@ html, body {
     border: 1px solid #999;
     padding: 4px 8px;
 }
-
-.marked1 {
-    background-color: cyan;
-}
-
-.marked2 {
-    background-color: lime;
-}
-
-.marked3 {
-    background-color: magenta;
-}
-
-.marked4 {
-    background-color: teal;
-}

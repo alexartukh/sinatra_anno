@@ -51,26 +51,56 @@ end
 
 # ------------------------------------------------------------------
 
-get %r{/mine_data/([12])/([^/]+?)/} do |operation, pub_file|
+get %r{/mine_data/([123])/([^/]+?)/} do |operation, pub_file|
   full_name = File.join(public_dir, 'data', pub_file)
   halt 404, 'Файл не найден' unless File.exist?(full_name)
 
   if operation == '1'
-    cont = Container.new(full_name)
+    draw_js_lines = ''
+    container = Container.new(full_name)
     yaml_full_name = File.join(__dir__, 'matchers.yml')
-    annotations = []
+
+    annotations = [] # array of arrays of hashes
     YAML.load_file(yaml_full_name).each do |cfg|
-      m = Matcher.new(cfg['name'], cfg['regexp'], cfg['css'], cfg['priority'])
-      annotations.push(m.process(cont.text))
+      m = Matcher.new(cfg)
+      aoh = m.process(container)
+      annotations.push(aoh)
+
+      if m.postprocessing == 'SEQUENCE'
+        last_point = nil
+        aoh.each do |a|
+          if last_point.nil?
+            last_point = [a[:begin_line], a[:begin_col]]
+            next
+          end
+
+          current_point = [a[:begin_line], a[:begin_col]]
+          draw_js_lines += format(
+            "drawSegment(%d, %d, %d, %d);\n",
+            last_point[0], last_point[1], current_point[0], current_point[1]
+          )
+
+          last_point = current_point
+        end
+      end
+
+      if m.postprocessing == 'FOO'
+      end
+
+      if m.postprocessing == 'BAR'
+      end
     end
 
+    # make a single sorterd list from all annotations
     annotations_sorted = []
     annotations.each do |a|
       annotations_sorted += a
     end
+    # we need a sorted list to generate a result
+    # when an annotation with a higher priority will override
+    # an annotation with a lower priority
     annotations_sorted = annotations_sorted.sort_by { |a| a[:priority] }
-
-    result = cont.create_annotated_ext(annotations_sorted)
+    result = container.create_annotated_ext(annotations_sorted)
   end
 
   erb(
@@ -78,7 +108,8 @@ get %r{/mine_data/([12])/([^/]+?)/} do |operation, pub_file|
       layout: :_layout,
       locals: {
         file_url: "/show_data_file/#{pub_file}/",
-        value: result
+        value: result,
+        draw_js_lines: draw_js_lines
       }
     }
   )

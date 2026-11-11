@@ -17,12 +17,24 @@
 #   css: 'background-color: magenta;'
 #   priority: 3
 
-# - name: 'setFoo'
-#   regexp: '\bset[A-Z]\w*\b'
-#   css: 'background-color: teal;'
+- name: 'setFoo'
+  regexp: '\bset[A-Z]\w*\b'
+  css: 'background-color: red;'
+  priority: 4
+  postprocessing: 'SEQUENCE'
+
+# - name: 'id'
+#   regexp: '\b[A-Za-z_]\w*\b'
+#   css: 'background-color: cyan;'
 #   priority: 4
 
-- name: 'id'
-  regexp: '\b[A-Za-z_]\w*\b'
+# - name: 'vars'
+#   regexp: '(?:let|const|var).+?='
+#   css: 'background-color: cyan;'
+#   priority: 5
+
+- name: 'call'
+  regexp: '\b([a-zA-Z_]\w*)\('
   css: 'background-color: cyan;'
-  priority: 4
+  priority: 5
+  group: 1

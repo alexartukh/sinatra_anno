@@ -4,30 +4,55 @@ require 'English'
 
 # base class for all matchers
 class Matcher
-  attr_accessor :name, :regexp, :css, :priority, :id
+  attr_accessor :id, :name, :regexp, :css, :priority, :postprocessing, :mods, :group
 
-  def initialize(name, regexp, css, priority)
+  # def initialize(name, regexp, css, priority)
+  def initialize(cfg)
     @id = 1 # this value will be assigned next time
-    @name = name
-    @regexp = Regexp.new(regexp)
-    @css = css
-    @priority = priority
+    # YAML keys are strings, not symbols
+
+    # mandatory params
+    @name = cfg.fetch('name')
+    @regexp = cfg.fetch('regexp')
+    @css = cfg.fetch('css')
+    @priority = cfg.fetch('priority')
+    raise "#{cfg.inspect} - name is nil" if @name.nil?
+    raise "#{cfg.inspect} - regexp is nil" if @regexp.nil?
+    raise "#{cfg.inspect} - css is nil" if @css.nil?
+    raise "#{cfg.inspect} - priority is nil" if @priority.nil?
+
+    # params with default values
+    @postprocessing = cfg.fetch('postprocessing', '')
+    @mods = cfg.fetch('mods', '')
+    @group = cfg.fetch('group', 0)
+
+    # string -> Regexp
+    @regexp = Regexp.new(@regexp)
   end
 
-  def process(text)
+  def process(container)
+    text = container.text
     result = []
-    text.scan(@regexp) do |matched_text|
+    text.scan(@regexp) do
       match = $LAST_MATCH_INFO
+      first_index = match.begin(@group)
+      last_index = match.end(@group)
+      begin_line, begin_col = container.search_for_line_col(first_index)
+      end_line, end_col = container.search_for_line_col(last_index)
       tmp = {
         id: @id,
-        text: matched_text,
-        begin: match.begin(0),
-        end: match.end(0),
+        begin: first_index,
+        end: last_index,
+        begin_line: begin_line,
+        begin_col: begin_col,
+        end_line: end_line,
+        end_col: end_col,
         css: @css,
         priority: @priority
       }
       @id += 1
       result.push(tmp)
+      p tmp
     end
     result
   end
